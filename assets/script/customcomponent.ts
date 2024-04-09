@@ -10,6 +10,7 @@ import {
     Intersection2D,
     Node,
     Prefab,
+    random,
     randomRangeInt,
     RigidBody,
     Sprite,
@@ -17,12 +18,21 @@ import {
     Tween,
     tween,
     UITransform,
+    Vec2,
     Vec3,
     view,
 } from "cc";
-import { hurdle } from "./hurdle"; // Assuming "hurdle" script defines cactus behavior
+import { hurdle } from "./hurdle";
 
 const { ccclass, property } = _decorator;
+class Vec3toVec2Converter {
+    x: number;
+    y: number;
+    constructor(vec3: Vec3) {
+        this.x = vec3.x;
+        this.y = vec3.y;
+    }
+}
 
 @ccclass("component")
 export class component extends Component {
@@ -31,14 +41,15 @@ export class component extends Component {
     @property({ type: Prefab })
     nodePrefab: Prefab = null;
     instanceNode: Node[] = [];
-    gameOver: boolean = false; // Flag to track game state
+    gameOver: boolean = false;
     insNode: Node;
-    isJumping = false;
+    isDinoJumping = false;
     @property({ type: Node })
     road: Node = null;
     roadPos: number;
     diff: number;
     cactusDiff = randomRangeInt(810, 1100);
+    roadRange = 0.5;
 
     onLoad() {
         if (this.road) {
@@ -61,7 +72,10 @@ export class component extends Component {
                 );
                 this.insNode.setPosition(
                     view.getDesignResolutionSize().x / 2 + i * this.cactusDiff,
-                    0 + (this.roadPos + this.road.getComponent(UITransform).height),
+                    0 +
+                        (this.roadPos +
+                            this.road.getComponent(UITransform).height +
+                            this.road.getComponent(UITransform).height * this.roadRange),
                     0
                 );
             } else {
@@ -72,7 +86,9 @@ export class component extends Component {
                 );
                 this.insNode.setPosition(
                     view.getDesignResolutionSize().x / 2 + i * this.cactusDiff,
-                    this.roadPos + this.road.getComponent(UITransform).height,
+                    this.roadPos +
+                        this.road.getComponent(UITransform).height +
+                        this.road.getComponent(UITransform).height * this.roadRange,
 
                     0
                 );
@@ -81,23 +97,23 @@ export class component extends Component {
     }
 
     onTouchStart(event: EventTouch) {
-        if (!this.isJumping) {
-            this.isJumping = true; // Set jumping flag to prevent further jumps
+        if (!this.isDinoJumping) {
+            this.isDinoJumping = true;
 
             tween(this.dino)
                 .to(
                     0.45,
                     {
-                        position: new Vec3(this.dino.getPosition().x + 12, this.dino.getPosition().y + 600, 0),
+                        position: new Vec3(this.dino.getPosition().x + 14, this.dino.getPosition().y + 450, 0),
                     },
                     { easing: "cubicInOut" }
                 )
                 .to(
                     0.45,
                     {
-                        position: new Vec3(this.dino.getPosition().x + 24, this.dino.getPosition().y, 0),
+                        position: new Vec3(this.dino.getPosition().x + 28, this.dino.getPosition().y, 0),
                     },
-                    { easing: "cubicInOut", onComplete: () => (this.isJumping = false) } // Reset jump flag after completion
+                    { easing: "cubicInOut", onComplete: () => (this.isDinoJumping = false) }
                 )
                 .start();
         }
@@ -108,19 +124,19 @@ export class component extends Component {
         this.diff = 0 - this.roadPos;
         for (let index = 0; index < this.instanceNode.length; index++) {
             const element = this.instanceNode[index];
-            element.setPosition(element.getPosition().x - 14, element.getPosition().y, 0);
+            element.setPosition(element.getPosition().x - 16, element.getPosition().y, 0);
         }
         for (const cactus of this.instanceNode) {
             if (cactus.getPosition().x < -view.getDesignResolutionSize().x) {
                 if (this.roadPos > 0) {
                     cactus.setPosition(
-                        view.getDesignResolutionSize().x + cactus.getComponent(UITransform).width,
+                        view.getDesignResolutionSize().x + cactus.getComponent(UITransform).width + this.cactusDiff,
                         cactus.getPosition().y,
                         0
                     );
                 } else {
                     cactus.setPosition(
-                        view.getDesignResolutionSize().x + cactus.getComponent(UITransform).width,
+                        view.getDesignResolutionSize().x + cactus.getComponent(UITransform).width + this.cactusDiff,
                         cactus.getPosition().y,
                         0
                     );
@@ -147,12 +163,25 @@ export class component extends Component {
         }
     }
 
+    // secondCheckCollision() {
+    //     for (const cactus of this.instanceNode) {
+    //         const dinoWorld = this.dino.getComponent(UITransform).getBoundingBoxToWorld();
+
+    //         const cactusWorld = cactus.getWorldPosition();
+    //         const dinoVec2 = new Vec2(dinoWorld.x, dinoWorld.y);
+    //         const cactusVec2 = new Vec2(cactusWorld.x, cactusWorld.y);
+
+    //         if (Intersection2D.polygonPolygon(dinoVec2, cactusVec2)) {
+    //         }
+    //     }
+    // }
+
     update(deltaTime: number) {
         this.startMove();
         this.checkCollision();
         if (this.gameOver) {
-            //here i will show message when game over
-            setTimeout(() => director.loadScene(director.getScene().name), 1500);
+            //here i will show message when game over/restart game
+            setTimeout(() => director.loadScene(director.getScene().name), 1000);
         }
     }
 }
