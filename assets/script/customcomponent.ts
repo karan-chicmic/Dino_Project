@@ -67,9 +67,12 @@ export class component extends Component {
             if (this.roadPos > 0) {
                 this.dino.setPosition(
                     -view.getDesignResolutionSize().x / 2 + this.dino.getComponent(UITransform).width,
-                    0 + (this.roadPos + this.road.getComponent(UITransform).height),
-                    0
-                );
+                    0 +
+                        (this.roadPos + this.road.getComponent(UITransform).height) +
+                        this.road.getComponent(UITransform).height * this.roadRange
+                ),
+                    0;
+
                 this.insNode.setPosition(
                     view.getDesignResolutionSize().x / 2 + i * this.cactusDiff,
                     0 +
@@ -81,9 +84,12 @@ export class component extends Component {
             } else {
                 this.dino.setPosition(
                     -view.getDesignResolutionSize().x / 2 + this.dino.getComponent(UITransform).width,
-                    this.roadPos + this.road.getComponent(UITransform).height,
-                    0
-                );
+                    this.roadPos +
+                        this.road.getComponent(UITransform).height +
+                        this.road.getComponent(UITransform).height * this.roadRange
+                ),
+                    0;
+
                 this.insNode.setPosition(
                     view.getDesignResolutionSize().x / 2 + i * this.cactusDiff,
                     this.roadPos +
@@ -102,18 +108,18 @@ export class component extends Component {
 
             tween(this.dino)
                 .to(
-                    0.45,
+                    0.4, // with 0.45 game is working smoothly like easy mode
                     {
-                        position: new Vec3(this.dino.getPosition().x + 14, this.dino.getPosition().y + 450, 0),
+                        position: new Vec3(this.dino.getPosition().x + 14, this.dino.getPosition().y + 400, 0),
                     },
-                    { easing: "cubicInOut" }
+                    { easing: "circOut" } //  with quint it is working very smoothly like easy game. //circout is also working fine but better.
                 )
                 .to(
-                    0.45,
+                    0.4,
                     {
                         position: new Vec3(this.dino.getPosition().x + 28, this.dino.getPosition().y, 0),
                     },
-                    { easing: "cubicInOut", onComplete: () => (this.isDinoJumping = false) }
+                    { easing: "circIn", onComplete: () => (this.isDinoJumping = false) }
                 )
                 .start();
         }
@@ -181,7 +187,7 @@ export class component extends Component {
         this.checkCollision();
         if (this.gameOver) {
             //here i will show message when game over/restart game
-            setTimeout(() => director.loadScene(director.getScene().name), 1000);
+            setTimeout(() => director.loadScene(director.getScene().name), 500);
         }
     }
 }
