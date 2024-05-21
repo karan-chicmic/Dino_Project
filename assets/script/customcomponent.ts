@@ -106,8 +106,8 @@ export class component extends Component {
     // }
 
     onLoad() {
-        this.dino.setSiblingIndex(0);
-        console.log("dino sibling index", this.dino.getSiblingIndex());
+        // this.dino.setSiblingIndex(0);
+        // console.log("dino sibling index", this.dino.getSiblingIndex());
         if (this.road) {
             this.roadPos = this.road.getPosition().y;
         }
@@ -119,6 +119,7 @@ export class component extends Component {
             hurdleNode.getComponent(hurdle).setHurdle();
             this.pool.put(hurdleNode);
             this.node.addChild(hurdleNode);
+            console.log(hurdleNode.getPosition());
 
             // hurdleNode.setPosition(new Vec3(0 + i * 200, 0, 0));
             if (this.roadPos > 0) {
@@ -226,19 +227,6 @@ export class component extends Component {
             }
         }
     }
-
-    // secondCheckCollision() {
-    //     for (const cactus of this.instanceNode) {
-    //         const dinoWorld = this.dino.getComponent(UITransform).getBoundingBoxToWorld();
-
-    //         const cactusWorld = cactus.getWorldPosition();
-    //         const dinoVec2 = new Vec2(dinoWorld.x, dinoWorld.y);
-    //         const cactusVec2 = new Vec2(cactusWorld.x, cactusWorld.y);
-
-    //         if (Intersection2D.polygonPolygon(dinoVec2, cactusVec2)) {
-    //         }
-    //     }
-    // }
 
     // startMove() {
     // console.log("Pool Size on startMove", this.pool.size());
